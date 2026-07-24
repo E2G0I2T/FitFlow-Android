@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -67,6 +68,8 @@ dependencies {
     implementation(project(":feature-checkin"))
     implementation(project(":feature-membership"))
     implementation(project(":feature-mypage"))
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)

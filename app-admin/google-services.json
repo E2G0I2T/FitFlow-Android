@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "991778895511",
+    "project_id": "fitflow-1b049",
+    "storage_bucket": "fitflow-1b049.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:991778895511:android:ddc83262b64886ec3ddbd2",
+        "android_client_info": {
+          "package_name": "com.fitflow.admin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7r5dgYy_1KU8S34sSHwSi2MhT-pbdvoo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:991778895511:android:a38cdb3195fbf81e3ddbd2",
+        "android_client_info": {
+          "package_name": "com.fitflow.user"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7r5dgYy_1KU8S34sSHwSi2MhT-pbdvoo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
