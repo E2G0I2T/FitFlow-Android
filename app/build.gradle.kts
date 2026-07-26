@@ -22,6 +22,10 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        val kakaoNativeAppKey = "1ffbe901c9922120a68a0714340ca096"
+        manifestPlaceholders["kakaoNativeAppKey"] = kakaoNativeAppKey
+        buildConfigField("String", "KAKAO_NATIVE_APP_KEY", "\"$kakaoNativeAppKey\"")
     }
 
     buildTypes {
@@ -39,6 +43,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -70,6 +75,8 @@ dependencies {
     implementation(project(":feature-mypage"))
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.messaging)
+    implementation(libs.kakao.user)
+    implementation(libs.androidx.navigation.compose)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
