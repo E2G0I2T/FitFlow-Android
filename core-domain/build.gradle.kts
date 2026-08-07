@@ -24,11 +24,11 @@ android {
 }
 
 dependencies {
-    implementation(libs.androidx.appcompat)
+    implementation(project(":core-common"))
     implementation(libs.androidx.core.ktx)
-    implementation(libs.material)
+    implementation(libs.kotlinx.coroutines.core)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
-    implementation(project(":core-common"))
 }

@@ -7,6 +7,7 @@ import com.fitflow.core_database.dao.ClassScheduleDao
 import com.fitflow.core_database.dao.InstructorDao
 import com.fitflow.core_database.dao.ReservationDao
 import com.fitflow.core_database.dao.UserDao
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

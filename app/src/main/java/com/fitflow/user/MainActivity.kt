@@ -4,21 +4,28 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.fitflow.core_designsystem.theme.FitFlowTheme
+import com.fitflow.feature.classinfo.navigation.ClassRoutes
+import com.fitflow.feature.classinfo.navigation.classNavGraph
 import com.fitflow.feature_auth.navigation.AuthRoutes
 import com.fitflow.feature_auth.navigation.authNavGraph
+import com.fitflow.feature_booking.navigation.BookingRoutes
+import com.fitflow.feature_booking.navigation.bookingNavGraph
+import com.fitflow.feature_mypage.navigation.MyPageRoutes
+import com.fitflow.feature_mypage.navigation.myPageNavGraph
 import dagger.hilt.android.AndroidEntryPoint
-import androidx.compose.foundation.layout.padding
-
-private const val ROUTE_HOME = "home" // TODO: feature-class(홈) 완성되면 그쪽 라우트로 교체
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -28,8 +35,36 @@ class MainActivity : ComponentActivity() {
         setContent {
             FitFlowTheme {
                 val navController = rememberNavController()
+                val backStackEntry by navController.currentBackStackEntryAsState()
+                val currentRoute = backStackEntry?.destination?.route
+                val showBottomBar = currentRoute == ClassRoutes.HOME || currentRoute == MyPageRoutes.MYPAGE
 
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    contentWindowInsets = WindowInsets(0, 0, 0, 0),
+                    bottomBar = {
+                        if (showBottomBar) {
+                            NavigationBar {
+                                NavigationBarItem(
+                                    selected = currentRoute == ClassRoutes.HOME,
+                                    onClick = {
+                                        navController.navigate(ClassRoutes.HOME) { launchSingleTop = true }
+                                    },
+                                    icon = { Text("🏠") },
+                                    label = { Text("홈") }
+                                )
+                                NavigationBarItem(
+                                    selected = currentRoute == MyPageRoutes.MYPAGE,
+                                    onClick = {
+                                        navController.navigate(MyPageRoutes.MYPAGE) { launchSingleTop = true }
+                                    },
+                                    icon = { Text("👤") },
+                                    label = { Text("마이페이지") }
+                                )
+                            }
+                        }
+                    }
+                ) { innerPadding ->
                     NavHost(
                         navController = navController,
                         startDestination = AuthRoutes.LOGIN,
@@ -37,22 +72,23 @@ class MainActivity : ComponentActivity() {
                     ) {
                         authNavGraph(
                             onLoginSuccess = {
-                                navController.navigate(ROUTE_HOME) {
+                                navController.navigate(ClassRoutes.HOME) {
                                     popUpTo(AuthRoutes.LOGIN) { inclusive = true }
                                 }
                             }
                         )
-                        composable(ROUTE_HOME) {
-                            HomePlaceholder()
-                        }
+                        classNavGraph(
+                            onClassClick = { classId ->
+                                navController.navigate(BookingRoutes.booking(classId))
+                            }
+                        )
+                        bookingNavGraph(
+                            onReservationSuccess = { navController.popBackStack() }
+                        )
+                        myPageNavGraph()
                     }
                 }
             }
         }
     }
-}
-
-@Composable
-private fun HomePlaceholder() {
-    Text("홈 화면 준비 중")
 }

@@ -3,6 +3,8 @@ package com.fitflow.feature_auth.login
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.fitflow.core_common.TempSession
+import com.fitflow.core_domain.repository.UserRepository
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
@@ -13,11 +15,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import android.util.Log
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor() : ViewModel() {
+class LoginViewModel @Inject constructor(
+    private val userRepository: UserRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState
@@ -40,6 +43,11 @@ class LoginViewModel @Inject constructor() : ViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
             delay(1000) // TODO: 백엔드 API 준비되면 core-network의 ApiService 호출로 교체
+            userRepository.saveUser(
+                id = TempSession.USER_ID,
+                nickname = state.email.substringBefore("@"),
+                profileImageUrl = null
+            )
             _uiState.update { it.copy(isLoading = false, isLoggedIn = true) }
         }
     }
@@ -74,10 +82,26 @@ class LoginViewModel @Inject constructor() : ViewModel() {
 
     private fun handleKakaoResult(token: OAuthToken?, error: Throwable?) {
         if (error != null) {
-            Log.e("KakaoLogin", "카카오 로그인 실패", error)   // 추가: 실제 에러 내용을 Logcat에 출력
+            android.util.Log.e("KakaoLogin", "카카오 로그인 실패", error)
             _uiState.update { it.copy(isLoading = false, errorMessage = "카카오 로그인에 실패했습니다") }
-        } else if (token != null) {
-            _uiState.update { it.copy(isLoading = false, isLoggedIn = true) }
+            return
+        }
+        if (token == null) return
+
+        UserApiClient.instance.me { user, meError ->
+            if (meError != null || user == null) {
+                android.util.Log.e("KakaoLogin", "사용자 정보 조회 실패", meError)
+                _uiState.update { it.copy(isLoading = false, errorMessage = "사용자 정보를 가져오지 못했습니다") }
+                return@me
+            }
+            viewModelScope.launch {
+                userRepository.saveUser(
+                    id = TempSession.USER_ID,
+                    nickname = user.kakaoAccount?.profile?.nickname ?: "사용자",
+                    profileImageUrl = user.kakaoAccount?.profile?.thumbnailImageUrl
+                )
+                _uiState.update { it.copy(isLoading = false, isLoggedIn = true) }
+            }
         }
     }
 }
